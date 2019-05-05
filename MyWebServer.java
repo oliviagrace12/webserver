@@ -61,7 +61,9 @@ class Worker extends Thread {
 //                    System.out.println(line);
                 }
 
-                BufferedReader fileReader = new BufferedReader(new FileReader("/Users/oliviachisman/Google Drive/depaul/csc_435/webserver/" + fileName));
+                File file = new File("./" + fileName);
+
+                BufferedReader fileReader = new BufferedReader(new FileReader(file));
 
                 out.println("HTTP/1.1 200 OK");
                 out.println("Content-Length: " + 200);
