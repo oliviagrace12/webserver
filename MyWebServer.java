@@ -49,32 +49,12 @@ class Worker extends Thread {
             try {
                 // reading a line from the socket (sent from the client) and printing to console
                 String fileName = in.readLine().split(" ")[1];
-
                 if (fileName.contains("favicon")) {
                     return;
                 }
-
                 String contentType = getContentType(fileName);
 
-                String line;
-                while ((line = in.readLine()) != null && !line.isEmpty()) {
-//                    System.out.println(line);
-                }
-
-                File file = new File("./" + fileName);
-
-                BufferedReader fileReader = new BufferedReader(new FileReader(file));
-
-                out.println("HTTP/1.1 200 OK");
-                out.println("Content-Length: " + 200);
-                out.println("Content-Type: " + contentType);
-                out.println();
-
-                String fileLine;
-                while ((fileLine = fileReader.readLine()) != null) {
-                    out.println(fileLine);
-                }
-                out.flush();
+                sendFileToClient(out, fileName, contentType);
 
             } catch (IOException e) {
                 // if any exceptions are thrown during the reading process, they will be printed here
@@ -89,6 +69,22 @@ class Worker extends Thread {
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void sendFileToClient(PrintStream out, String fileName, String contentType) throws IOException {
+        File file = new File("./" + fileName);
+        BufferedReader fileReader = new BufferedReader(new FileReader(file));
+
+        out.println("HTTP/1.1 200 OK");
+        out.println("Content-Length: " + 200);
+        out.println("Content-Type: " + contentType);
+        out.println();
+
+        String fileLine;
+        while ((fileLine = fileReader.readLine()) != null) {
+            out.println(fileLine);
+        }
+        out.flush();
     }
 
     private String getContentType(String fileName) {
