@@ -52,31 +52,14 @@ class Worker extends Thread {
                 // reading the first line sent from the client
                 String line = in.readLine();
                 if (line == null) {
-                    return;
+                    throw new UnsupportedOperationException();
                 }
-                // splitting the line on the space character, to separate out the elements
-                String[] array = line.split(" ");
-                // if the array does not have more than one element, ignore this request
-                if (array.length < 2) {
-                    return;
-                }
-                // the file name is the second element in the first line of the request
-                String fileName = array[1];
-                // we want to ignore these requests, default from firefox
-                if (fileName.contains("favicon")) {
-                    return;
-                }
-
-                // retrieve the desired file
-                File file = new File("./" + fileName);
-                // if the file is a directory, display the files in the directory. Otherwise, display the file if the
-                // content type is supported
-                if (file.isDirectory()) {
-                    sendDirToClient(out, file);
+                // if the line contains cgi, then it is a request from the addition page
+                // and should be handled differently
+                if (line.contains("cgi")) {
+                    handleAsAdd(out, line);
                 } else {
-                    // parse the content type from the file name
-                    String contentType = getContentType(fileName);
-                    sendFileToClient(out, file, contentType);
+                    handleAsFile(out, line);
                 }
 
             } catch (IOException e) {
@@ -86,11 +69,70 @@ class Worker extends Thread {
             }
             // closing the connection with the client
             socket.close();
-        } catch (IOException e) {
+        } catch (IOException | UnsupportedOperationException e) {
             // if any exceptions are thrown during the socket operations (getting the input and output streams,
             // closing the socket), they will be printed here
-            System.out.println(e.getMessage());
-            e.printStackTrace();
+            if (e.getMessage() != null) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private void handleAsAdd(PrintStream out, String line) {
+        String cgi = line.split(" ")[1];
+        String fieldLine = cgi.split("\\?")[1];
+        String[] pairs = fieldLine.split("&");
+        String person = "";
+        long num1 = 0;
+        long num2 = 0;
+
+        for (int i = 0; i < pairs.length; i++) {
+            String str = pairs[i];
+            if (str.contains("person")) {
+                person = str.split("=")[1];
+            } else if (str.contains("num1")) {
+                num1 = Long.valueOf(str.split("=")[1]);
+            } else if (str.contains("num2")) {
+                num2 = Long.valueOf(str.split("=")[1]);
+            }
+        }
+
+        // sending the headers of the http response to the client
+        out.println("HTTP/1.1 200 OK");
+        // telling the client how long the response will be
+        out.println("Content-Length: " + 200);
+        // tells the client how to interpret the response. For this response we are choosing html
+        out.println("Content-Type: " + textHtml);
+        // formatting response
+        out.println();
+        out.println(person + ", the sum of " + num1 + " and " + num2 + " is " + (num1 + num2));
+        out.flush();
+    }
+
+    private void handleAsFile(PrintStream out, String line) throws IOException {
+        // splitting the line on the space character, to separate out the elements
+        String[] array = line.split(" ");
+        // if the array does not have more than one element, ignore this request
+        if (array.length < 2) {
+            throw new UnsupportedOperationException();
+        }
+        // the file name is the second element in the first line of the request
+        String fileName = array[1];
+        // we want to ignore these requests, default from firefox
+        if (fileName.contains("favicon")) {
+            throw new UnsupportedOperationException();
+        }
+
+        // retrieve the desired file
+        File file = new File("./" + fileName);
+        // if the file is a directory, display the files in the directory. Otherwise, display the file if the
+        // content type is supported
+        if (file.isDirectory()) {
+            sendDirToClient(out, file);
+        } else {
+            // parse the content type from the file name
+            String contentType = getContentType(fileName);
+            sendFileToClient(out, file, contentType);
         }
     }
 
