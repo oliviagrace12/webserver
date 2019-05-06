@@ -50,7 +50,12 @@ class Worker extends Thread {
 
             try {
                 // reading the first line sent from the client
-                String[] array = in.readLine().split(" ");
+                String line = in.readLine();
+                if (line == null) {
+                    return;
+                }
+                // splitting the line on the space character, to separate out the elements
+                String[] array = line.split(" ");
                 // if the array does not have more than one element, ignore this request
                 if (array.length < 2) {
                     return;
