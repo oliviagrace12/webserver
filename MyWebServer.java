@@ -49,24 +49,29 @@ class Worker extends Thread {
             PrintStream out = new PrintStream(socket.getOutputStream());
 
             try {
-                // reading the first line sent from the client, which contains the GET request we want to parse as the
-                // second element
-                String fileName = in.readLine().split(" ")[1];
+                // reading the first line sent from the client
+                String[] array = in.readLine().split(" ");
+                // if the array does not have more than one element, ignore this request
+                if (array.length < 2) {
+                    return;
+                }
+                // the file name is the second element in the first line of the request
+                String fileName = array[1];
                 // we want to ignore these requests, default from firefox
                 if (fileName.contains("favicon")) {
                     return;
                 }
-                // parse the content type from the file name
-                String contentType = getContentType(fileName);
+
                 // retrieve the desired file
                 File file = new File("./" + fileName);
-
-                // if the content type is not null, this means that the file requested was either a .txt or a .html file
-                // and we should send back its contents. Otherwise we will assume it is a directory.
-                if (contentType != null) {
-                    sendFileToClient(out, file, contentType);
-                } else {
+                // if the file is a directory, display the files in the directory. Otherwise, display the file if the
+                // content type is supported
+                if (file.isDirectory()) {
                     sendDirToClient(out, file);
+                } else {
+                    // parse the content type from the file name
+                    String contentType = getContentType(fileName);
+                    sendFileToClient(out, file, contentType);
                 }
 
             } catch (IOException e) {
@@ -88,35 +93,57 @@ class Worker extends Thread {
         // This gets all of the files in the directory
         List<File> filesAndDirs = Arrays.asList(file.listFiles());
 
+        // sending the headers of the http response to the client
         out.println("HTTP/1.1 200 OK");
-        out.println("Content-Length: " + 200);
+        // telling the client how long the response will be
+        out.println("Content-Length: " + file.getTotalSpace());
+        // tells the client how to interpret the response, here we want it to be interpreted as html
         out.println("Content-Type: " + textHtml);
+        // more configs and formatting
+        out.println("Connection: close");
         out.println();
+        // beginning of payload, which is dynamically generated html
         out.println("<pre>");
+        // title of page, which tells the directory name
         out.println("<h1>Index of " + file.getName() + "</h1>");
-        out.println("<a href=\"" + file.getParent() + "\">Parent Directory</a> <br>");
+        // list the parent directory as "Parent Directory". This can be used to navigate one level up in the
+        // directory structure
+        out.println("<a href=\"../\">Parent Directory/</a> <br>");
 
+        // list out all of the files in the directory as hyperlinks
         filesAndDirs.forEach(f -> {
-            out.println("<a href=\"" + f.getName() + "\">" + f.getName() + "</a> <br>");
+            if (f.isDirectory()) {
+                out.println("<a href=\"" + f.getName() + "/\">" + f.getName() + "/</a><br>");
+            } else {
+                out.println("<a href=\"" + f.getName() + "\">" + f.getName() + "</a> <br>");
+            }
         });
     }
 
     private void sendFileToClient(PrintStream out, File file, String contentType) throws IOException {
+        // creating a reader to read the contents of the file
         BufferedReader fileReader = new BufferedReader(new FileReader(file));
 
+        // sending the headers of the http response to the client
         out.println("HTTP/1.1 200 OK");
-        out.println("Content-Length: " + 200);
+        // telling the client how long the response will be
+        out.println("Content-Length: " + file.getTotalSpace());
+        // tells the client how to interpret the response. For this server, the responses will be either text or html
         out.println("Content-Type: " + contentType);
+        // formatting response
         out.println();
 
+        // reading each line of the file and sending it to the client
         String fileLine;
         while ((fileLine = fileReader.readLine()) != null) {
             out.println(fileLine);
         }
+        // making sure everything gets sent to the client right away
         out.flush();
     }
 
     private String getContentType(String fileName) {
+        // decide what type of file we are dealing with based on the file extension
         if (fileName.contains(".txt")) {
             return textPlain;
         } else if (fileName.contains(".html")) {
