@@ -32,6 +32,7 @@ public class MyWebServer {
 
 class Worker extends Thread {
 
+    // content type codes
     private String textPlain = "text/plain";
     private String textHtml = "text/html";
 
@@ -54,8 +55,8 @@ class Worker extends Thread {
                 if (line == null) {
                     throw new UnsupportedOperationException();
                 }
-                // if the line contains cgi, then it is a request from the addition page
-                // and should be handled differently
+                // if the line contains cgi, then it should be handled as an addition request. Otherwise, it should
+                // be handled as a file or directory request
                 if (line.contains("cgi")) {
                     handleAsAdd(out, line);
                 } else {
@@ -79,13 +80,17 @@ class Worker extends Thread {
     }
 
     private void handleAsAdd(PrintStream out, String line) {
+        // getting portion of GET line that has cgi request
         String cgi = line.split(" ")[1];
+        // getting portion of cgi request that has the fields and values
         String fieldLine = cgi.split("\\?")[1];
+        // getting each field-value pair
         String[] pairs = fieldLine.split("&");
         String person = "";
         long num1 = 0;
         long num2 = 0;
 
+        // for each field-value pair, parse based on the field name
         for (int i = 0; i < pairs.length; i++) {
             String str = pairs[i];
             if (str.contains("person")) {
@@ -105,7 +110,9 @@ class Worker extends Thread {
         out.println("Content-Type: " + textHtml);
         // formatting response
         out.println();
+        // send payload, which tells the person's name, the numbers they entered and the sum of those numbers
         out.println(person + ", the sum of " + num1 + " and " + num2 + " is " + (num1 + num2));
+        // flush the stream so that the client receives the response right away
         out.flush();
     }
 
