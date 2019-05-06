@@ -3,6 +3,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.List;
 
 public class MyWebServer {
 
@@ -47,14 +49,25 @@ class Worker extends Thread {
             PrintStream out = new PrintStream(socket.getOutputStream());
 
             try {
-                // reading a line from the socket (sent from the client) and printing to console
+                // reading the first line sent from the client, which contains the GET request we want to parse as the
+                // second element
                 String fileName = in.readLine().split(" ")[1];
+                // we want to ignore these requests, default from firefox
                 if (fileName.contains("favicon")) {
                     return;
                 }
+                // parse the content type from the file name
                 String contentType = getContentType(fileName);
+                // retrieve the desired file
+                File file = new File("./" + fileName);
 
-                sendFileToClient(out, fileName, contentType);
+                // if the content type is not null, this means that the file requested was either a .txt or a .html file
+                // and we should send back its contents. Otherwise we will assume it is a directory.
+                if (contentType != null) {
+                    sendFileToClient(out, file, contentType);
+                } else {
+                    sendDirToClient(out, file);
+                }
 
             } catch (IOException e) {
                 // if any exceptions are thrown during the reading process, they will be printed here
@@ -71,8 +84,24 @@ class Worker extends Thread {
         }
     }
 
-    private void sendFileToClient(PrintStream out, String fileName, String contentType) throws IOException {
-        File file = new File("./" + fileName);
+    private void sendDirToClient(PrintStream out, File file) {
+        // This gets all of the files in the directory
+        List<File> filesAndDirs = Arrays.asList(file.listFiles());
+
+        out.println("HTTP/1.1 200 OK");
+        out.println("Content-Length: " + 200);
+        out.println("Content-Type: " + textHtml);
+        out.println();
+        out.println("<pre>");
+        out.println("<h1>Index of " + file.getName() + "</h1>");
+        out.println("<a href=\"" + file.getParent() + "\">Parent Directory</a> <br>");
+
+        filesAndDirs.forEach(f -> {
+            out.println("<a href=\"" + f.getName() + "\">" + f.getName() + "</a> <br>");
+        });
+    }
+
+    private void sendFileToClient(PrintStream out, File file, String contentType) throws IOException {
         BufferedReader fileReader = new BufferedReader(new FileReader(file));
 
         out.println("HTTP/1.1 200 OK");
@@ -93,7 +122,7 @@ class Worker extends Thread {
         } else if (fileName.contains(".html")) {
             return textHtml;
         } else {
-            throw new UnsupportedOperationException("Unsupported file type requested");
+            return null;
         }
     }
 }
