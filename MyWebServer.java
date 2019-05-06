@@ -17,7 +17,7 @@ public class MyWebServer {
         ServerSocket serverSocket = new ServerSocket(port, qLen);
 
         // letting the user know that the server has started, and on which port
-        System.out.println("Olivia Chisman's Lister server starting up, listening to port " + port + ".\n");
+        System.out.println("Olivia Chisman's Web server starting up, listening to port " + port + ".\n");
 
         // program runs in infinite loop, unless exception is thrown
         while (true) {
@@ -52,9 +52,11 @@ class Worker extends Thread {
             try {
                 // reading the first line sent from the client
                 String line = in.readLine();
-                if (line == null) {
+                // ignore these requests, they are extra from firefox
+                if (line == null || line.contains("favicon")) {
                     throw new UnsupportedOperationException();
                 }
+                System.out.println("Received request from client: " + line);
                 // if the line contains cgi, then it should be handled as an addition request. Otherwise, it should
                 // be handled as a file or directory request
                 if (line.contains("cgi")) {
@@ -125,13 +127,9 @@ class Worker extends Thread {
         }
         // the file name is the second element in the first line of the request
         String fileName = array[1];
-        // we want to ignore these requests, default from firefox
-        if (fileName.contains("favicon")) {
-            throw new UnsupportedOperationException();
-        }
 
         // retrieve the desired file
-        File file = new File("./" + fileName);
+        File file = new File("./" + fileName + "/");
         // if the file is a directory, display the files in the directory. Otherwise, display the file if the
         // content type is supported
         if (file.isDirectory()) {
@@ -164,11 +162,14 @@ class Worker extends Thread {
         // directory structure
         out.println("<a href=\"../\">Parent Directory/</a> <br>");
 
+        System.out.println("Sending files: ");
         // list out all of the files in the directory as hyperlinks
         filesAndDirs.forEach(f -> {
             if (f.isDirectory()) {
+                System.out.println("\t" + f.getName() + "/");
                 out.println("<a href=\"" + f.getName() + "/\">" + f.getName() + "/</a><br>");
             } else {
+                System.out.println("\t" + f.getName());
                 out.println("<a href=\"" + f.getName() + "\">" + f.getName() + "</a> <br>");
             }
         });

@@ -1,4 +1,4 @@
-// output for MyListener
+## output for MyListener
 
 Olivia Chisman's Lister server starting up, listening to port 2540.
 
@@ -20,7 +20,7 @@ Connection: keep-alive
 
 
 
-// output for MyTelnetClient requesting dog file on condor
+## output for MyTelnetClient requesting dog file on condor
 
 Olivia Chisman's MyTelnet Client
 
@@ -43,7 +43,7 @@ Connection: close
 This is Elliott's dog file on condor. Good job!
 
 
-// output for MyTelnetClient requesting cat file on condor
+## output for MyTelnetClient requesting cat file on condor
 
 Olivia Chisman's MyTelnet Client
 

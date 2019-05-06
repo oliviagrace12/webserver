@@ -1,0 +1,65 @@
+/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/bin/java "-javaagent:/Applications/IntelliJ IDEA CE.app/Contents/lib/idea_rt.jar=58704:/Applications/IntelliJ IDEA CE.app/Contents/bin" -Dfile.encoding=UTF-8 -classpath "/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib/ant-javafx.jar:/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib/deploy.jar:/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib/java.jnlp.jar:/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib/javafx-swt.jar:/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib/javaws.jar:/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib/jdk.deploy.jar:/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib/jdk.javaws.jar:/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib/jdk.plugin.dom.jar:/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib/jdk.plugin.jar:/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib/jrt-fs.jar:/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib/plugin-legacy.jar:/Library/Java/JavaVirtualMachines/jdk-9.0.1.jdk/Contents/Home/lib/plugin.jar:/Users/oliviachisman/Google Drive/depaul/csc_435/webserver/out/production/webserver" MyWebServer
+Olivia Chisman's Web server starting up, listening to port 2540.
+
+## Navigating by clicking on hyperlinks through the file tree
+Received request from client: GET / HTTP/1.1
+Sending files:
+	MyFiles/
+	MyWebServer_Checklist.html
+	out/
+	serverlog.txt
+	MyTelnetClient.java
+	.gitignore
+	cat.html
+	webserver.iml
+	.git/
+	MyWebServer.java
+	MyListener.java
+	http-streams.txt
+	.idea/
+Received request from client: GET /MyFiles/ HTTP/1.1
+Sending files:
+	dog.txt
+	SubDir/
+	cat.html
+Received request from client: GET /MyFiles/SubDir/ HTTP/1.1
+Sending files:
+	fish.txt
+Received request from client: GET /MyFiles/SubDir/fish.txt HTTP/1.1
+Received request from client: GET /MyFiles/SubDir/ HTTP/1.1
+Sending files:
+	fish.txt
+Received request from client: GET /MyFiles/ HTTP/1.1
+Sending files:
+	dog.txt
+	SubDir/
+	cat.html
+Received request from client: GET /MyFiles/cat.html HTTP/1.1
+Received request from client: GET /MyFiles/ HTTP/1.1
+Sending files:
+	dog.txt
+	SubDir/
+	cat.html
+Received request from client: GET / HTTP/1.1
+Sending files:
+	MyFiles/
+	MyWebServer_Checklist.html
+	out/
+	serverlog.txt
+	MyTelnetClient.java
+	.gitignore
+	cat.html
+	webserver.iml
+	.git/
+	MyWebServer.java
+	MyListener.java
+	http-streams.txt
+	.idea/
+Received request from client: GET /cat.html HTTP/1.1
+
+## Navigating by typing in different URLs
+Received request from client: GET /MyFiles/SubDir/fish.txt HTTP/1.1
+Received request from client: GET /MyFiles/SubDir/ HTTP/1.1
+Sending files:
+	fish.txt
+Received request from client: GET /MyFiles/cat.html/ HTTP/1.1
